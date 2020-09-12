@@ -5,7 +5,7 @@ let package = Package(
     name: "Nuke",
     platforms: [
         .macOS(.v10_13),
-        .iOS(.v11),
+        .iOS(.v9),
         .tvOS(.v11),
         .watchOS(.v4)
     ],

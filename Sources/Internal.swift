@@ -408,14 +408,20 @@ extension String {
 // MARK: - Log
 
 final class Log {
-    private let log: OSLog
+    private let log: OSLog?
     private let name: StaticString
     private let signpostsEnabled: Bool
 
-    init(_ log: OSLog, _ name: StaticString, _ signpostsEnabled: Bool = ImagePipeline.Configuration.isSignpostLoggingEnabled) {
-        self.log = log
-        self.name = name
-        self.signpostsEnabled = signpostsEnabled
+    init(_ log: Any?, _ name: StaticString, _ signpostsEnabled: Bool = ImagePipeline.Configuration.isSignpostLoggingEnabled) {
+        if #available(iOS 10.0, *) {
+            self.log = (log as? OSLog)!
+            self.name = name
+            self.signpostsEnabled = signpostsEnabled
+        } else {
+            self.log = nil
+            self.name = name
+            self.signpostsEnabled = signpostsEnabled
+        }
     }
 
     // MARK: Signposts
@@ -428,7 +434,7 @@ final class Log {
     func signpost(_ type: SignpostType) {
         guard signpostsEnabled else { return }
         if #available(OSX 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            os_signpost(type.os, log: log, name: name, signpostID: signpostID)
+            os_signpost(type.os, log: log!, name: name, signpostID: signpostID)
         }
     }
 
@@ -440,13 +446,13 @@ final class Log {
     func signpost(_ type: SignpostType, _ format: StaticString, _ argument: CVarArg) {
         guard signpostsEnabled else { return }
         if #available(OSX 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *) {
-            os_signpost(type.os, log: log, name: name, signpostID: signpostID, format, argument)
+            os_signpost(type.os, log: log!, name: name, signpostID: signpostID, format, argument)
         }
     }
 
     @available(OSX 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *)
     var signpostID: OSSignpostID {
-        OSSignpostID(log: log, object: self)
+        OSSignpostID(log: log!, object: self)
     }
 }
 

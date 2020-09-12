@@ -35,7 +35,7 @@ public /* final */ class ImagePipeline {
 
     private let rateLimiter: RateLimiter
 
-    private let log: OSLog
+    private let log: Any?
 
     /// Shared image pipeline.
     public static var shared = ImagePipeline()
@@ -53,10 +53,14 @@ public /* final */ class ImagePipeline {
         self.originalImageFetchTasks = TaskPool(isDeduplicationEnabled)
         self.originalImageDataFetchTasks = TaskPool(isDeduplicationEnabled)
 
-        if Configuration.isSignpostLoggingEnabled {
-            self.log = OSLog(subsystem: "com.github.kean.Nuke.ImagePipeline", category: "Image Loading")
+        if #available(iOS 10.0, *) {
+            if Configuration.isSignpostLoggingEnabled {
+                self.log = OSLog(subsystem: "com.github.kean.Nuke.ImagePipeline", category: "Image Loading")
+            } else {
+                self.log = OSLog.disabled
+            }
         } else {
-            self.log = .disabled
+            log = nil
         }
     }
 
